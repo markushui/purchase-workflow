@@ -28,7 +28,11 @@ class PurchaseOrderLine(models.Model):
                         move.product_uom_qty, line.product_uom
                     )
                 else:
-                    total += move.product_uom_qty
+                    if move.location_id.usage not in ('internal', 'transit') and move.location_dest_id.usage in ('internal', 'transit'):
+                        total += move.product_uom_qty
+                    elif move.location_id.usage in ('internal', 'transit') and move.location_dest_id.usage not in ('internal', 'transit'):
+                        total -= move.product_uom_qty                                                
+                        
             line.qty_to_receive = total
         for line in service_lines:
             line.qty_to_receive = line.product_qty - line.qty_received
